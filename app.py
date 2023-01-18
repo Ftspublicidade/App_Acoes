@@ -3,6 +3,7 @@ import pandas as pd
 import yfinance as yf
 import plotly.express as px
 import plotly.graph_objects as go
+from datetime import date
 
 
 @st.cache
@@ -41,7 +42,7 @@ def main():
 
     st.header("Gráfico fechamento das ações")
     fig = px.line(df, x="Date", y="Close", title="Fechamento das ações", template="seaborn")
-    st.plotly_chart(fig)
+    st.plotly_chart(fig, use_container_width=True)
 
     # Dividendos
     dividendos = df.groupby(df["Date"].dt.year)["Dividends"].sum().reset_index()
@@ -51,11 +52,16 @@ def main():
 
     # Candlestick
     st.subheader("Gráfico de Candlestick, onde podemos analisar a oscilação entre a abertura e o fechamento, e se a ação fechou maior ou menor que o preço de abertura, para isso só analisar pela cor, os vermelhos fecharam com o preço menor do que o de abertura e os verdes fecharam com o preço maior do que o de abertura.")
-    fig = go.Figure(data=[go.Candlestick(x=df['Date'],
+    df_grafico = df.nlargest(7, "Date")
+    fig = go.Figure(data=[go.Candlestick(x=df_grafico['Date'],
                 open=df['Open'],
                 high=df['High'],
                 low=df['Low'],
                 close=df['Close'])])
+    
+    fig.update_layout(
+    title='Candlestick últimos 7 dias')
+
 
     st.write(fig)
 
